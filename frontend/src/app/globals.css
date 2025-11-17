@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles (sin @apply circular) */
 * {
   margin: 0;
   padding: 0;
@@ -40,22 +39,21 @@ body {
   @apply text-amber-400;
 }
 
-/* ← FIX: Raw CSS para grid responsive (evita @apply en media) */
 .grid {
   display: grid;
-  gap: 1.5rem; /* gap-6 */
-  grid-template-columns: repeat(1, 1fr); /* grid-cols-1 */
+  gap: 1.5rem;
+  grid-template-columns: repeat(1, 1fr);
 }
 
 @media (min-width: 768px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr); /* grid-cols-2 raw */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
   .grid {
-    grid-template-columns: repeat(3, 1fr); /* grid-cols-3 raw */
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

@@ -1,4 +1,3 @@
-// frontend/src/app/page.test.tsx
 import {
   render,
   screen,
@@ -6,13 +5,11 @@ import {
   fireEvent,
   act,
 } from "@testing-library/react";
-import "@testing-library/jest-dom"; // Para toBeInTheDocument
+import "@testing-library/jest-dom";
 import Dashboard from "./page";
-import { io } from "socket.io-client";
 
-// Mock Chart.js para canvas (evita "getContext" error)
 jest.mock("react-chartjs-2", () => ({
-  Line: () => <div data-testid="mock-chart" />, // Div simple en tests
+  Line: () => <div data-testid="mock-chart" />,
 }));
 
 // Mock socket.io
@@ -27,20 +24,17 @@ jest.mock("socket.io-client", () => jest.fn(() => mockSocket));
 describe("Dashboard", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global as any).__SOCKET__ = mockSocket; // Para retry
+    (global as any).__SOCKET__ = mockSocket;
   });
 
-  // TEST 1 (FIX: Simula connect + initialData para labels visibles)
   it("renders 3 crypto cards", async () => {
     render(<Dashboard />);
-    // Simula connect (sale de connecting)
     await act(async () => {
       const connectCb = mockSocket.on.mock.calls.find(
         (call) => call[0] === "connect"
       )?.[1];
       if (connectCb) connectCb();
     });
-    // Simula initialData (popula cards, muestra labels)
     await act(async () => {
       const initialCb = mockSocket.on.mock.calls.find(
         (call) => call[0] === "initialData"
@@ -68,7 +62,6 @@ describe("Dashboard", () => {
         ]);
       }
     });
-    // Ahora labels visibles post-loading
     await waitFor(
       () => {
         expect(screen.getByText("ETH/USDC")).toBeInTheDocument();
@@ -79,7 +72,6 @@ describe("Dashboard", () => {
     );
   });
 
-  // TEST 2 (ok, pero con act full)
   it("shows connection status", async () => {
     render(<Dashboard />);
     await act(async () => {
@@ -93,7 +85,6 @@ describe("Dashboard", () => {
     );
   });
 
-  // TEST 3 (ok)
   it("displays current price when data arrives", async () => {
     render(<Dashboard />);
 
@@ -128,7 +119,6 @@ describe("Dashboard", () => {
     );
   });
 
-  // TEST 4 (ok)
   it("shows connecting state", async () => {
     render(<Dashboard />);
     expect(screen.getByText("Connecting...")).toBeInTheDocument();
@@ -141,7 +131,6 @@ describe("Dashboard", () => {
     await waitFor(() => expect(screen.getByText("Live")).toBeInTheDocument());
   });
 
-  // TEST 5 (ok)
   it("shows error and retry", async () => {
     render(<Dashboard />);
     await act(async () => {

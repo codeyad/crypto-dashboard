@@ -12,7 +12,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full dark">
-      {/* 'dark' activa theme */}
       <body className="h-full bg-gray-900 text-gray-100">{children}</body>
     </html>
   );

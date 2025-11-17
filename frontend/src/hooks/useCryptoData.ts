@@ -24,8 +24,8 @@ interface CryptoData {
 export const useCryptoData = () => {
   const [data, setData] = useState<Record<string, CryptoData>>({});
   const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(true); // ← NUEVO
-  const [error, setError] = useState<string | null>(null); // ← NUEVO
+  const [isConnecting, setIsConnecting] = useState(true); 
+  const [error, setError] = useState<string | null>(null); 
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -39,13 +39,13 @@ export const useCryptoData = () => {
     socket.on('connect', () => {
       setIsConnected(true);
       setIsConnecting(false);
-      setError(null); // ← NUEVO: Clear error
+      setError(null); 
     });
     socket.on('disconnect', () => {
       setIsConnected(false);
       setIsConnecting(false);
     });
-    socket.on('connect_error', (err: Error) => { // ← NUEVO
+    socket.on('connect_error', (err: Error) => {
       setError('Backend unavailable, retrying...');
       setIsConnected(false);
       setIsConnecting(false);
@@ -81,12 +81,11 @@ export const useCryptoData = () => {
       });
     });
 
-    // ← REMOVIDO: Interval simulado (ahora usa real updates)
 
     return () => {
       socket.disconnect();
     };
   }, []);
 
-  return { data, isConnected, isConnecting, error }; // ← NUEVO: Return extras
+  return { data, isConnected, isConnecting, error }; 
 };
