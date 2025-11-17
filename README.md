@@ -107,6 +107,3 @@ crypto-dashboard/ \
 
 Ready for review/demo. Questions? Let's discuss scaling (e.g., Redis for avgs).
 
-## License
-
-MIT – Feel free to adapt.
