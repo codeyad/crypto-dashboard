@@ -1,7 +1,5 @@
 # Real-Time Crypto Dashboard
 
-## Senior Fullstack Engineer - Take-Home Exercise
-
 A real-time dashboard displaying live exchange rates for ETH/USDC, ETH/USDT, and ETH/BTC from Finnhub's WebSocket API, with live charts, hourly averages (persisted to JSON), and connection status.
 
 ![Dashboard Screenshot](Dashboard Screenshot)
