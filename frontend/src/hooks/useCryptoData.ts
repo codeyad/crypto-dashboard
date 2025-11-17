@@ -1,4 +1,3 @@
-// src/hooks/useCryptoData.ts
 import { useEffect, useState, useRef } from 'react';
 import io, { Socket } from 'socket.io-client';
 
@@ -70,7 +69,7 @@ export const useCryptoData = () => {
         const newHistory = [
           ...prevItem.history,
           { time: new Date(update.timestamp || Date.now()).getTime(), price: update.current! }
-        ].slice(-60); // ← MEJORADO: Siempre push con real timestamp, slice para perf
+        ].slice(-60);
         return {
           ...prev,
           [update.symbol]: {

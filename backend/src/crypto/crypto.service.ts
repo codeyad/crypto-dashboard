@@ -25,7 +25,6 @@ export class CryptoService {
   private readonly logger = new Logger(CryptoService.name);
   private ws: WebSocket | null = null;
 
-  // State
   private rates: Record<string, RateData> = {};
   private hourlyAverages: Record<string, number> = {};
   private reconnectTimeout: NodeJS.Timeout | null = null;

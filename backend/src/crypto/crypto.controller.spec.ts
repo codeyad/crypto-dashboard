@@ -1,17 +1,15 @@
-// backend/src/crypto/crypto.controller.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { CryptoController } from './crypto.controller';
 import { CryptoService } from './crypto.service';
 
 describe('CryptoController', () => {
   let controller: CryptoController;
-  let mockService: any; // ← FIX: 'any' para mock private props (ws, rates, avgs)
+  let mockService: any;
 
   beforeEach(async () => {
     mockService = {
-      ws: { readyState: 1 }, // Mock WS open (any permite private)
+      ws: { readyState: 1 },
       rates: {
-        // 3 symbols
         'BINANCE:ETHUSDC': {},
         'BINANCE:ETHUSDT': {},
         'BINANCE:ETHBTC': {},

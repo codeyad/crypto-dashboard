@@ -1,4 +1,3 @@
-// src/components/CryptoCard.tsx
 import { Line } from "react-chartjs-2";
 import { Clock } from "lucide-react";
 import {

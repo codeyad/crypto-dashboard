@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { CryptoService, CryptoUpdate } from './crypto.service';
+import { CryptoService } from './crypto.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class CryptoGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -15,7 +15,6 @@ export class CryptoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger(CryptoGateway.name);
   private lastEmits: Record<string, number> = {};
 
-  // Constructor and Subscription
   constructor(private cryptoService: CryptoService) {
     this.cryptoService.subscribeToUpdates((data) => {
       const now = Date.now();
@@ -29,7 +28,6 @@ export class CryptoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  // Connection Handling
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
     client.emit('initialData', this.cryptoService.getInitialData());

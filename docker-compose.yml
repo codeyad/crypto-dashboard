@@ -6,8 +6,8 @@ services:
     environment:
       - FINNHUB_API_KEY=${FINNHUB_API_KEY}
     volumes:
-      - ./backend/data:/app/data # Persist avgs
-      - ./.env:/app/.env # ← ADD: Mount root .env to container
+      - ./backend/data:/app/data
+      - ./.env:/app/.env
 
   frontend:
     build: ./frontend

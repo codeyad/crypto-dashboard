@@ -14,5 +14,4 @@ jest.mock('ws', () => {
   return jest.fn(() => mockWsInstance);
 });
 
-// Exporta para acceso directo
 (global as any).__MOCK_WS__ = mockWsInstance;

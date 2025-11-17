@@ -1,4 +1,3 @@
-// backend/test/app.e2e-spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
@@ -17,7 +16,7 @@ describe('App (e2e)', () => {
 
     app = module.createNestApplication();
     await app.init();
-    await app.listen(0); // ← ESCUCHA EN PUERTO ALEATORIO
+    await app.listen(0);
     server = app.getHttpServer();
     port = server.address().port;
   }, 10000);
@@ -48,8 +47,6 @@ describe('App (e2e)', () => {
       done(err);
     });
   });
-
-  // En backend/test/app.e2e-spec.ts, agrega este it después del WS:
 
   it('/health (GET)', () => {
     return request(server)
