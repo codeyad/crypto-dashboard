@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles (sin @apply circular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-gray-900 text-gray-100 min-h-screen p-6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.container {
+  @apply max-w-6xl mx-auto;
+}
+
+.header {
+  @apply flex justify-between items-center mb-8 pb-4 border-b border-gray-600;
+}
+
+.header h1 {
+  @apply text-2xl font-bold flex items-center gap-2;
+}
+
+.status {
+  @apply flex items-center gap-2 text-sm font-medium;
+}
+
+.status.live {
+  @apply text-green-400;
+}
+.status.offline {
+  @apply text-red-400;
+}
+.status.connecting {
+  @apply text-amber-400;
+}
+
+/* ← FIX: Raw CSS para grid responsive (evita @apply en media) */
+.grid {
+  display: grid;
+  gap: 1.5rem; /* gap-6 */
+  grid-template-columns: repeat(1, 1fr); /* grid-cols-1 */
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr); /* grid-cols-2 raw */
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr); /* grid-cols-3 raw */
+  }
+}
+
+.card {
+  @apply bg-gray-800 border border-gray-600 rounded-lg p-6 shadow-lg;
+}
+
+.card h3 {
+  @apply text-lg font-semibold mb-1;
+}
+.card p {
+  @apply text-sm text-gray-400 mb-4;
+}
+
+.price {
+  @apply text-2xl font-bold mb-2;
+}
+
+.meta {
+  @apply flex justify-between items-center mb-4 text-sm text-gray-400;
+}
+
+.change {
+  @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.change.up {
+  @apply bg-green-900/20 text-green-400;
+}
+.change.down {
+  @apply bg-red-900/20 text-red-400;
+}
+
+.chart-container {
+  @apply h-40 mt-4;
+}
+
+.loading {
+  @apply flex justify-center items-center h-48;
+}
+
+.spinner {
+  @apply w-8 h-8 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-banner {
+  @apply text-red-400 p-4 bg-gray-800 rounded-lg mb-4 text-center border border-red-500;
+}
