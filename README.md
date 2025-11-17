@@ -45,8 +45,8 @@ A real-time dashboard displaying live exchange rates for ETH/USDC, ETH/USDT, and
 ### Environment
 
 Root `.env`:
-FINNHUB_API_KEY=your_key
-PORT=3001 # Backend
+`FINNHUB_API_KEY=your_key`
+`PORT=3001 # Backend`
 text### Local Run
 
 **Backend:**
