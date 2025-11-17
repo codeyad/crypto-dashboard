@@ -1,9 +1,9 @@
-// backend/src/crypto/crypto.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import WebSocket from 'ws';
+import * as fs from 'fs';
+import * as path from 'path';
 
-// === INTERFACES ===
 export interface RateData {
   symbol: string;
   current: number | null;
@@ -20,13 +20,12 @@ export interface CryptoUpdate {
 
 type UpdateCallback = (update: CryptoUpdate) => void;
 
-// === SERVICIO ===
 @Injectable()
 export class CryptoService {
   private readonly logger = new Logger(CryptoService.name);
   private ws: WebSocket | null = null;
 
-  // === ESTADO ===
+  // State
   private rates: Record<string, RateData> = {};
   private hourlyAverages: Record<string, number> = {};
   private reconnectTimeout: NodeJS.Timeout | null = null;
@@ -38,14 +37,17 @@ export class CryptoService {
     'BINANCE:ETHBTC',
   ];
 
+  private readonly avgPath: string;
+
   constructor() {
+    this.avgPath = path.join(__dirname, '../../data/hourly-avgs.json');
     this.initializeRates();
+    this.loadPersistedAverages();
     this.connectToFinnhub();
   }
 
-  // === MÉTODOS PÚBLICOS ===
   getInitialData(): CryptoUpdate[] {
-    return Object.values(this.rates).map((rate: RateData) => ({
+    return Object.values(this.rates).map((rate) => ({
       symbol: rate.symbol,
       current: rate.current,
       timestamp: rate.timestamp,
@@ -57,7 +59,6 @@ export class CryptoService {
     this.updateCallback = callback;
   }
 
-  // === INICIALIZACIÓN ===
   private initializeRates() {
     this.symbols.forEach((symbol) => {
       this.rates[symbol] = {
@@ -70,11 +71,26 @@ export class CryptoService {
     });
   }
 
-  // === CONEXIÓN FINNHUB ===
+  private loadPersistedAverages() {
+    const dataDir = path.dirname(this.avgPath);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+      return;
+    }
+    if (fs.existsSync(this.avgPath)) {
+      try {
+        const loaded = JSON.parse(fs.readFileSync(this.avgPath, 'utf8'));
+        this.hourlyAverages = { ...this.hourlyAverages, ...loaded };
+      } catch (err) {
+        this.logger.error('Error loading avgs', err);
+      }
+    }
+  }
+
   private connectToFinnhub() {
     const apiKey = process.env.FINNHUB_API_KEY;
     if (!apiKey) {
-      this.logger.error('FINNHUB_API_KEY no está definida');
+      this.logger.error('FINNHUB_API_KEY not set');
       this.scheduleReconnect();
       return;
     }
@@ -82,7 +98,7 @@ export class CryptoService {
     this.ws = new WebSocket(`wss://ws.finnhub.io?token=${apiKey}`);
 
     this.ws.on('open', () => {
-      this.logger.log('Conectado a Finnhub WebSocket');
+      this.logger.log('Connected to Finnhub WS');
       this.symbols.forEach((symbol) => {
         this.ws!.send(JSON.stringify({ type: 'subscribe', symbol }));
       });
@@ -92,37 +108,36 @@ export class CryptoService {
       try {
         const msg = JSON.parse(data.toString());
         if (msg.type === 'trade' && Array.isArray(msg.data)) {
-          msg.data.forEach((trade: any) => {
+          msg.data.forEach((trade) => {
             const symbol = trade.s;
             if (this.rates[symbol]) {
               const price = trade.p;
-              const timestamp = new Date(trade.t).toISOString();
+              const ts = new Date(trade.t).toISOString();
 
               this.rates[symbol].current = price;
-              this.rates[symbol].timestamp = timestamp;
+              this.rates[symbol].timestamp = ts;
               this.rates[symbol].hourlyData.push(price);
 
-              this.emitUpdate({ symbol, current: price, timestamp });
+              this.emitUpdate({ symbol, current: price, timestamp: ts });
             }
           });
         }
       } catch (err) {
-        this.logger.error('Error procesando mensaje:', err);
+        this.logger.error('Message parse error', err);
       }
     });
 
     this.ws.on('close', () => {
-      this.logger.warn('Desconectado de Finnhub');
+      this.logger.warn('Finnhub disconnected');
       this.scheduleReconnect();
     });
 
     this.ws.on('error', (err) => {
-      this.logger.error('Error WebSocket:', err.message);
+      this.logger.error('WS error', err.message);
       this.scheduleReconnect();
     });
   }
 
-  // === EMITIR ACTUALIZACIÓN ===
   private emitUpdate(update: {
     symbol: string;
     current: number;
@@ -138,7 +153,6 @@ export class CryptoService {
     }
   }
 
-  // === PROMEDIO HORARIO ===
   @Cron(CronExpression.EVERY_HOUR)
   calculateHourlyAverages() {
     this.symbols.forEach((symbol) => {
@@ -147,16 +161,21 @@ export class CryptoService {
         const avg = data.reduce((a, b) => a + b, 0) / data.length;
         this.hourlyAverages[symbol] = avg;
         this.rates[symbol].hourlyData = [];
-        this.logger.log(`Promedio horario ${symbol}: ${avg.toFixed(2)}`);
+        this.logger.log(`Hourly avg ${symbol}: ${avg.toFixed(2)}`);
       }
     });
+    try {
+      fs.writeFileSync(this.avgPath, JSON.stringify(this.hourlyAverages));
+    } catch (err) {
+      this.logger.error('Persist avgs error', err);
+    }
   }
 
-  // === RECONEXIÓN ===
+  // Reconnection Logic
   private scheduleReconnect() {
     if (this.reconnectTimeout) return;
     this.reconnectTimeout = setTimeout(() => {
-      this.logger.log('Reconectando a Finnhub...');
+      this.logger.log('Reconnecting to Finnhub...');
       this.connectToFinnhub();
       this.reconnectTimeout = null;
     }, 5000);

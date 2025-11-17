@@ -1,4 +1,3 @@
-// backend/src/crypto/crypto.gateway.ts
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -14,13 +13,23 @@ import { CryptoService, CryptoUpdate } from './crypto.service';
 export class CryptoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private logger = new Logger(CryptoGateway.name);
+  private lastEmits: Record<string, number> = {};
 
+  // Constructor and Subscription
   constructor(private cryptoService: CryptoService) {
-    this.cryptoService.subscribeToUpdates((data: CryptoUpdate) => {
-      this.server.emit('rateUpdate', data);
+    this.cryptoService.subscribeToUpdates((data) => {
+      const now = Date.now();
+      if (
+        !this.lastEmits[data.symbol] ||
+        now - this.lastEmits[data.symbol] > 1000
+      ) {
+        this.server.emit('rateUpdate', data);
+        this.lastEmits[data.symbol] = now;
+      }
     });
   }
 
+  // Connection Handling
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
     client.emit('initialData', this.cryptoService.getInitialData());
@@ -32,6 +41,6 @@ export class CryptoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('subscribeToRates')
   handleSubscribe() {
-    // Ya se maneja en conexión
+    // Handled on connect
   }
 }

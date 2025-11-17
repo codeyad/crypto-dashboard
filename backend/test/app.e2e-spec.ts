@@ -48,4 +48,17 @@ describe('App (e2e)', () => {
       done(err);
     });
   });
+
+  // En backend/test/app.e2e-spec.ts, agrega este it después del WS:
+
+  it('/health (GET)', () => {
+    return request(server)
+      .get('/health')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toHaveProperty('finnhub');
+        expect(res.body).toHaveProperty('uptime');
+        expect(res.body.symbols).toHaveLength(3);
+      });
+  });
 });

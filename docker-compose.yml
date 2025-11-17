@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - FINNHUB_API_KEY=${FINNHUB_API_KEY}
+    volumes:
+      - ./backend/data:/app/data # Persist avgs
+      - ./.env:/app/.env # ← ADD: Mount root .env to container
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
